@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "zjbrainscienceplatformdeploy"
+version = "1.0.0"
+description = "之江实验室 Brain Science 平台部署仓库"
+authors = ["蔡涛 <caitao@zhejianglab.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+typer = { extras = ["all"], version = "^0.7.0" }
+
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.12.0"
+black = "^23.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+skip-magic-trailing-comma = true
+extend-exclude = 'platform\/|algorithm\/'
+
+[tool.isort]
+profile = "black"
+line_length = 100
+extend_skip_glob = ["platform/*", "algorithm/*"]
