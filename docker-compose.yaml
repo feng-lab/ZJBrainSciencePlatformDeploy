@@ -13,12 +13,14 @@ services:
     volumes:
       - ~/log/ZJBrainSciencePlatform/app:/root/log/ZJBrainSciencePlatform/app
       - ~/data/ZJBrainSciencePlatform/file:/root/data/ZJBrainSciencePlatform/file
-    restart: always
     depends_on:
       - database
       - cache
-  #    networks:
-  #      - platform-net
+    deploy:
+      replicas: ${PLATFORM_REPLICAS}
+      restart_policy:
+        condition: on-failure
+        delay: 3s
 
 
   database:
@@ -34,15 +36,19 @@ services:
     volumes:
       - ~/mysql/ZJBrainSciencePlatform/data:/var/lib/mysql
       - ~/log/ZJBrainSciencePlatform/mysql:/var/log/mysql
-    restart: always
-  #    networks:
-  #      - platform-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 3s
 
   cache:
     image: ${CACHE_IMAGE_TAG}
-    restart: always
-  #    networks:
-  #      - platform-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 3s
 
 
   algorithm:
@@ -52,11 +58,10 @@ services:
     volumes:
       - ~/log/ZJBrainSciencePlatformAlgorithm/app:/root/log/ZJBrainSciencePlatformAlgorithm/app
       - ~/data/ZJBrainSciencePlatform/file:/root/data/ZJBrainSciencePlatform/file
-    restart: always
     depends_on:
       - database
-#    networks:
-#      - platform-net
-
-#networks:
-#  platform-net:
+    deploy:
+      replicas: ${ALGORITHM_REPLICAS}
+      restart_policy:
+        condition: on-failure
+        delay: 3s

@@ -11,9 +11,9 @@ set -x
 docker build \
   --file "${scriptDir}/poetry.Dockerfile" \
   --tag "$poetry_image_tag" \
-  --build-arg "PYTHON_VERSION=${PYTHON_VERSION}" \
-  --build-arg "POETRY_VERSION=${POETRY_VERSION}" \
-  --build-arg "PIP_INDEX_URL=-i ${PIP_INDEX_URL}" \
+  --build-arg "PYTHON_VERSION=${python_version}" \
+  --build-arg "POETRY_VERSION=${poetry_version}" \
+  --build-arg "PIP_INDEX_URL=-i ${pip_index_url}" \
   "$scriptDir"
 
 docker build \

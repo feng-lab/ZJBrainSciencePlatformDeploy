@@ -1,14 +1,17 @@
 docker_username='zjlabbrainscience'
 docker_token='dckr_pat_2PDLJLgitGJ6zztpsVtGVgGCz3s'
-poetry_image_version="20230216"
 image_repo_prefix='zj-brain-science-platform'
+compose_project_name='zj-brain-science-platform'
 
-COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-zj-brain-science-platform}"
-PYTHON_VERSION="${PYTHON_VERSION:-3.11}"
-POETRY_VERSION="${POETRY_VERSION:-1.3.2}"
-PIP_INDEX_URL="${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}"
+platform_replicas='1'
+algorithm_replicas='1'
 
-# 生成的配置
+python_version='3.11'
+poetry_version='1.3.2'
+poetry_image_version="20230216"
+pip_index_url='https://pypi.tuna.tsinghua.edu.cn/simple'
+
+# 以下是生成的配置
 service_image_version="${service_image_version:-$(date +%Y%m%d-%H%M%S)}"
 
 poetry_image_tag="${docker_username}/${image_repo_prefix}-poetry:${poetry_image_version}"
