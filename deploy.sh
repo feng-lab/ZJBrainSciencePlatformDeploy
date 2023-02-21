@@ -12,6 +12,4 @@ mkdir -p ~/log/ZJBrainSciencePlatformAlgorithm/app
 mkdir -p ~/data/ZJBrainSciencePlatform/file
 mkdir -p ~/mysql/ZJBrainSciencePlatform/data
 
-docker stack \
-  --orchestrator swarm \
-  "$@"
+docker stack "$@"
