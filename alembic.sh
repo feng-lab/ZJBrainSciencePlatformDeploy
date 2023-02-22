@@ -5,5 +5,7 @@ scriptDir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 cd "$scriptDir"
 source "${scriptDir}/config.sh"
 
-bash "${scriptDir}/deploy.sh" run --rm platform \
+bash "${scriptDir}/compose.sh" run --rm platform \
   alembic upgrade head
+
+bash "${scriptDir}/compose.sh" down
