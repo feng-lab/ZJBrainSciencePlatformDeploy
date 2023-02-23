@@ -1,0 +1,12 @@
+services:
+
+  ${APP_NAME}:
+    image: ${DOCKER_IMAGE}
+    ports:
+      - "80:80"
+    deploy:
+      replicas: ${REPLICAS}
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+
