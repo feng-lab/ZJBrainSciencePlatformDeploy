@@ -1,9 +1,0 @@
-[submodule "platform"]
-	path = platform
-	url = https://github.com/feng-lab/ZJBrainSciencePlatformV2.git
-	branch = main
-
-[submodule "algorithm"]
-	path = algorithm
-	url = https://github.com/feng-lab/ZJBrainSciencePlatformAlgorithm.git
-	branch = main
