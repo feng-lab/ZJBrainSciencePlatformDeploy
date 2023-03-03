@@ -9,6 +9,7 @@ password=zjlab2022root
 databases=(zj_brain_science_platform)
 containerName=platform_database
 containerBackupDir=/backup
+containerBackupOutputDir=/home/cnife/mysql/ZJBrainSciencePlatform/backup
 
 # 创建备份文件夹
 if [ ! -d "$backupDir" ]; then
@@ -23,15 +24,15 @@ if [ -z "$containerId" ]; then
 fi
 
 # 创建并压缩备份
-backupBaseFileName="$(date +'%T%m%d-%H%M%S')"
+backupBaseFileName="$(date +'%Y%m%d-%H%M%S')"
 backupCommand="mysqldump --user=${username} --password=${password} --result-file=${containerBackupDir}/${backupBaseFileName}.sql --databases ${databases[*]}"
-docker exec "$containerId" sh -c "'$backupCommand'"
-tar -C "$backupDir" -caf "${backupBaseFileName}.tar.xz" "${backupBaseFileName}.sql"
-rm --verbose "${backupDir}/${backupBaseFileName}.sql"
+docker exec "$containerId" sh -c "$backupCommand"
+tar -C "$containerBackupOutputDir" -caf "${backupDir}/${backupBaseFileName}.tar.xz" "${backupBaseFileName}.sql"
+rm --force "${containerBackupOutputDir}/${backupBaseFileName}.sql"
 
 # 删除超过数量上限的、最旧的备份
 tailCount=$((backupCount + 1))
 # shellcheck disable=SC2010
 for fileToDelete in $(ls -1ctp "${backupDir}" | grep '.tar.xz' | grep -v '/' | tail -n +"$tailCount"); do
-  rm --verbose "${backupDir}/${fileToDelete}"
+  rm --force "${backupDir}/${fileToDelete}"
 done
