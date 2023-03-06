@@ -2,14 +2,14 @@
 set -euo pipefail
 
 # 配置
-backupDir=/data/ZJBrainSciencePlatformDatabaseBackups
+backupDir=/data/ZJBrainSciencePlatform/mysql/backup
 backupCount=30
 username=root
 password=zjlab2022root
 databases=(zj_brain_science_platform)
 containerName=platform_database
 containerBackupDir=/backup
-containerBackupOutputDir=/home/cnife/mysql/ZJBrainSciencePlatform/backup
+containerBackupOutputDir=/data/ZJBrainSciencePlatform/mysql/backup
 
 # 创建备份文件夹
 if [ ! -d "$backupDir" ]; then
