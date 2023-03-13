@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+      - /data/ZJBrainSciencePlatform/prometheus/data:/prometheus
+    depends_on:
+      - node-exporter
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - /data/ZJBrainSciencePlatform/grafana/data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  node-exporter:
+    image: prom/node-exporter
