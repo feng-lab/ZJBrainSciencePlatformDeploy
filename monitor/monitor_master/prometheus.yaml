@@ -5,8 +5,12 @@ scrape_configs:
       - targets:
           - localhost:9090
 
-  - job_name: node
+  - job_name: node-testing
+    static_configs:
+      - targets:
+          - 10.101.40.3:9100
+
+  - job_name: node-production
     static_configs:
       - targets:
           - node-exporter:9100
-          - 10.101.40.3:9100
