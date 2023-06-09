@@ -24,4 +24,5 @@ docker run \
   --title zjbs-data \
   --show-symlink-info \
   --show-wget-footer \
+  --header 'Access-Control-Allow-Origin: *' \
   /data
