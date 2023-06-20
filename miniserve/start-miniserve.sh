@@ -14,6 +14,7 @@ docker run \
   --publish "${port}:8080" \
   --user "${uid}:${gid}" \
   --name miniserve \
+  --restart always \
   --detach \
   svenstaro/miniserve:alpine \
   --hidden \
