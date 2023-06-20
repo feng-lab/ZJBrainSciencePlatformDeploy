@@ -10,6 +10,6 @@ snapshotName="$(date +'%Y%m%d-%H%M%S')"
 zfs snapshot "${dataset}@${snapshotName}"
 
 # 删除旧快照
-for snapshotToDelete in $(zfs list -H -t snapshot -o name -S creation "$dataset" | head -n "-${snapshotCount}"); do
+for snapshotToDelete in $(zfs list -H -t snapshot -o name -S creation "$dataset" | tail --lines "+$((snapshotCount + 1))"); do
   zfs destroy -v "$snapshotToDelete"
 done
