@@ -1,0 +1,12 @@
+services:
+
+  atlas-data:
+    image: zjlabbrainscience/atlas-data:6974722a7a2ab6e14cb3814dadd99a99
+    ports:
+      - "8080:80"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+

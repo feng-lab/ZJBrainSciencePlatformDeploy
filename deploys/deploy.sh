@@ -14,7 +14,7 @@ Usage (){
 		-D								Deploy to development
 		-P								Deploy to production
 		-S								Static project
-		-c <docker_compose_file>	Custom docker compose file.
+		-c <docker_compose_file>		Custom docker compose file.
 		-d <Dockerfile>					Custom Dockerfile
 		-h 								Help
 	EOF
@@ -23,7 +23,7 @@ Usage (){
 
 ## Analysis options
 
-set -- `getopt a:c:d:DPSfh "$@"`
+set -- `getopt a:c:d:t:e:DPSh "$@"`
 
 DOCKER_COMPOSE_FILE=""
 DOCKERFILE=""
@@ -39,6 +39,10 @@ do
 		-c) DOCKER_COMPOSE_FILE=$2
 			shift ;;
 		-d) DOCKERFILE=$2
+			shift ;;
+		-t) PROJECT_TYPE=$2
+			shift ;;
+		-e) ENV=$2
 			shift ;;
 		-D) ENV="DEV";;
 		-P) ENV="PRODUCTION";;
@@ -60,17 +64,19 @@ if [ -z $PROJECT_PATH ]; then
 	Usage
 fi
 
-
-export APP_NAME=`basename $PROJECT_PATH`
+if [ -z $APP_NAME ]; then
+	APP_NAME=`basename $PROJECT_PATH`
+fi
+export APP_NAME
 
 DEPLOY_SCRIPTS_DIR=`dirname $(readlink -f "$0")`
-CONFIG_DIR=${DEPLOY_SCRIPTS_DIR}/config
-BUILDS_FILE=${DEPLOY_SCRIPTS_DIR}/builds/build_${PROJECT_TYPE}.sh
-COMPOSE_TEMPLATES_FILE=${DEPLOY_SCRIPTS_DIR}/templates/docker-compose-${PROJECT_TYPE}.yaml
+CONFIG_DIR=$DEPLOY_SCRIPTS_DIR/config
+BUILDS_FILE=$DEPLOY_SCRIPTS_DIR/builds/build_$PROJECT_TYPE.sh
+COMPOSE_TEMPLATES_FILE=$DEPLOY_SCRIPTS_DIR/templates/docker-compose-$PROJECT_TYPE.yaml
 
 
-source ${CONFIG_DIR}/config.sh
-source ${CONFIG_DIR}/config_${ENV}.sh
+source $CONFIG_DIR/config.sh
+source $CONFIG_DIR/config_$ENV.sh
 echo -e "\033[5;33m Staring deploying ... \033[0m\n"
 echo "|| Project path: "$PROJECT_PATH
 echo "|| Project type: "$PROJECT_TYPE
@@ -82,34 +88,38 @@ echo -e "|| Replicas: "$REPLICAS
 BuildNewDockerImage() {
 	## build Application
 	echo -e "\n\033[34mWaiting for build Application and tar the result ... \033[0m"
-	cd ${PROJECT_PATH}
+	cd $PROJECT_PATH
 	source $BUILDS_FILE
 	echo -e "\nbuild and tar ... \033[32m Done \033[0m"
 	
 	## build docker image
-	echo -e "\n\033[34mWaiting for build docker image... \033[0m"
-	export DOCKER_IMAGE="${DOCKER_USERNAME}/${APP_NAME}:${TAG}"
-	echo "|| tag: "${TAG}
+	echo -e "\n\033[34mWaiting for building docker image... \033[0m"
+	export DOCKER_IMAGE="$DOCKER_USERNAME/$APP_NAME:$TAG"
+	echo "|| tag: "$TAG
 	
 	if [ -z $DOCKERFILE]; then
 		DOCKERFILE=$PROJECT_PATH/Dockerfile
 	fi
-	echo "|| Dockerfile: "${Dockerfile}
+	echo "|| Dockerfile: "$DOCKERFILE
+	echo  $DOCKER_USERNAME $DOCKER_TOKEN
 	
 	docker build -t $DOCKER_IMAGE -f $DOCKERFILE $PROJECT_PATH
 	echo -e "\nbuild docker iamge ... \033[32m Done \033[0m\n"
+
+	if [ $ENV != "LOCAL" ]; then
+		echo -e "\n\033[34mWaiting for publishing docker image... \033[0m"
+		docker login -u $DOCKER_USERNAME -p $DOCKER_TOKEN
+		docker push $DOCKER_IMAGE
+		echo -e "\npublish docker iamge ... \033[32m Done \033[0m\n"
+	fi
 	
-	echo -e "\n\033[34mWaiting for build docker image... \033[0m"
-	docker login --username $DOCKER_USERNAME --password $DOCKER_TOKEN
-	docker push ${DOCKER_IMAGE}
-	echo -e "\npublish docker iamge ... \033[32m Done \033[0m\n"
 }
 
 GetDockerImageOnDev() {
 	SERVICE_NAME=${DOCKER_STACK}_${APP_NAME}
-	source ${CONFIG_DIR}/config_DEV.sh
-	export DOCKER_IMAGE=`ssh ${USER}@${HOST} "docker service ls"|grep ${SERVICE_NAME}|awk '{print $5}'`
-	source ${CONFIG_DIR}/config_${ENV}.sh
+	source $CONFIG_DIR/config_DEV.sh
+	export DOCKER_IMAGE=`ssh $USER@$HOST "docker service ls"|grep $SERVICE_NAME|awk '{print $5}'`
+	source $CONFIG_DIR/config_$ENV.sh
 }
 
 if [ $ENV = "PRODUCTION" ]; then
@@ -145,12 +155,16 @@ echo -e "\n\033[34mWaiting for deploy to host $HOST... \033[0m"
 echo "Docker image: "${DOCKER_IMAGE}
 
 if [ -z $DOCKER_COMPOSE_FILE ]; then 
-	DOCKER_COMPOSE_FILE=${DEPLOY_SCRIPTS_DIR}/stack_yamls/${APP_NAME}.yaml
+	DOCKER_COMPOSE_FILE=$DEPLOY_SCRIPTS_DIR/stack_yamls/$APP_NAME.yaml
 	envsubst < $COMPOSE_TEMPLATES_FILE > $DOCKER_COMPOSE_FILE
 fi
 
+if [ $ENV != "LOCAL" ]; then
+	rsync $DOCKER_COMPOSE_FILE $USER@$HOST:
+	ssh $USER@$HOST docker stack deploy -c $APP_NAME.yaml $DOCKER_STACK --with-registry-auth
+else
+	docker stack deploy -c $DOCKER_COMPOSE_FILE $DOCKER_STACK --with-registry-auth
+fi
 
-rsync $DOCKER_COMPOSE_FILE $USER@$HOST:
-ssh $USER@$HOST docker stack deploy -c ${APP_NAME}.yaml ${DOCKER_STACK}
 
 echo -e "\nDeploy success ... \033[32m Done \033[0m\n"

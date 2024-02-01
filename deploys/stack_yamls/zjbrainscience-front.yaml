@@ -1,13 +1,13 @@
 services:
 
-  ${APP_NAME}:
-    image: ${DOCKER_IMAGE} 
+  zjbrainscience-front:
+    image: cnife/zjbrainscience-front:f911a54e4b0de9054840cd26d67d2536 
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
       - "80:80"
     deploy:
-      replicas: ${REPLICAS}
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 3s

@@ -8,7 +8,7 @@ fi
 
 echo -e "\033[32m waiting for building \033[5m...\033[0m\033[0m"
 
-npm run build | grep -v dist
+npm run build 
 
 echo -e "\033[32m waiting for taring \033[5m...\033[0m\033[0m"
 
